@@ -52,10 +52,17 @@
     public EventCallback<List<string>> OnChipsChanged { get; set; }
 
     /// <summary>
-    /// The callback when the chips list has changed
+    /// The callback when input is given
     /// </summary>
     [Parameter]
     public EventCallback<ChangeEventArgs> OnChipsInput { get; set; }
+
+
+    /// <summary>
+    /// The callback when submit has been called
+    /// </summary>
+    [Parameter]
+    public EventCallback OnSubmit { get; set; }
 
     /// <summary>
     /// Indicates whether or not chips are readonly
@@ -240,6 +247,7 @@
         if (AllowedValues != null && AllowedValues.Count > 0 && !AllowedValues.Contains(currentInputValue, StringComparer.OrdinalIgnoreCase)) validationErrors.Add(AllowedValueValidationMessage);
         if (validationErrors.Count > 0) return;
 
+        OnSubmit.InvokeAsync(null);
         Chips.Add(currentInputValue);
         currentInputValue = "";
         OnChipsChanged.InvokeAsync(Chips);
