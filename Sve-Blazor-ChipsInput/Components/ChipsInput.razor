@@ -52,6 +52,12 @@
     public EventCallback<List<string>> OnChipsChanged { get; set; }
 
     /// <summary>
+    /// The callback when the chips list has changed
+    /// </summary>
+    [Parameter]
+    public EventCallback<ChangeEventArgs> OnChipsInput { get; set; }
+
+    /// <summary>
     /// Indicates whether or not chips are readonly
     /// </summary>
     [Parameter]
@@ -208,6 +214,8 @@
     {
         prevInputValue = currentInputValue;
         currentInputValue = args.Value.ToString();
+
+        OnChipsInput.InvokeAsync(args);
     }
 
     private void OnKeyDown(KeyboardEventArgs args)
