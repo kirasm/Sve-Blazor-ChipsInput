@@ -16,7 +16,7 @@
             </li>
         }
         <li style="flex-grow: 1; margin: 5px 5px 5px 0px;">
-            <input type="text" @bind-value="currentInputValue" @onkeyup="OnKeyUp" @oninput="OnInput" @onkeydown="OnKeyDown" style='border: none; width: 100%; @(ShowInputOutline ? "" : "outline: none;")' @attributes="InputAttributes" />
+            <input type="text" @bind-value="CurrentInputValue" @onkeyup="OnKeyUp" @oninput="OnInput" @onkeydown="OnKeyDown" style='border: none; width: 100%; @(ShowInputOutline ? "" : "outline: none;")' @attributes="InputAttributes" />
         </li>
     </ul>
 </div>
@@ -203,12 +203,17 @@
     public double ChipBorderRadius { get; set; } = 1;
 
     /// <summary>
+    /// The current input
+    /// </summary>
+    [Parameter]
+    public string CurrentInputValue { get; set; } = "";
+
+    /// <summary>
     /// Custom attributes for the text input
     /// </summary>
     [Parameter]
     public Dictionary<string, object> InputAttributes { get; set; } = new Dictionary<string, object>();
 
-    private string currentInputValue = "";
     private string prevInputValue = "";
     private List<string> validationErrors = new List<string>();
 
@@ -219,17 +224,17 @@
 
     private void OnInput(ChangeEventArgs args)
     {
-        prevInputValue = currentInputValue;
-        currentInputValue = args.Value.ToString();
+        prevInputValue = CurrentInputValue;
+        CurrentInputValue = args.Value.ToString();
 
         OnChipsInput.InvokeAsync(args);
     }
 
     private void OnKeyDown(KeyboardEventArgs args)
     {
-        if (currentInputValue.Length == 0 && args.Key == "Backspace")
+        if (CurrentInputValue.Length == 0 && args.Key == "Backspace")
         {
-            prevInputValue = currentInputValue;
+            prevInputValue = CurrentInputValue;
         }
     }
 
@@ -238,18 +243,18 @@
         validationErrors.Clear();
 
         if (EnableBackspaceRemove && args.Key == "Backspace" && Chips.Count > 0 && prevInputValue.Length == 0 && !ReadonlyChips) RemoveChip(Chips.Last());
-        if (args.Key != "Enter" || Chips.Contains(currentInputValue, StringComparer.OrdinalIgnoreCase)) return;
-        if (CustomValidation.HasDelegate) CustomValidation.InvokeAsync(new ChipValidationArgs(Chips, currentInputValue, validationErrors));
-        if (string.IsNullOrEmpty(currentInputValue) && !AllowEmptyValue) validationErrors.Add(AllowEmptyValueValidationMessage);
+        if (args.Key != "Enter" || Chips.Contains(CurrentInputValue, StringComparer.OrdinalIgnoreCase)) return;
+        if (CustomValidation.HasDelegate) CustomValidation.InvokeAsync(new ChipValidationArgs(Chips, CurrentInputValue, validationErrors));
+        if (string.IsNullOrEmpty(CurrentInputValue) && !AllowEmptyValue) validationErrors.Add(AllowEmptyValueValidationMessage);
         if (MaxValueCount != null && Chips.Count == MaxValueCount) validationErrors.Add(MaxValueCountValidationMessage);
-        if (MaxValueLength != null && currentInputValue.Length > MaxValueLength) validationErrors.Add(MaxValueLengthValidationMessage);
-        if (MinValueLength != null && currentInputValue.Length < MinValueLength) validationErrors.Add(MinValueLengthValidationMessage);
-        if (AllowedValues != null && AllowedValues.Count > 0 && !AllowedValues.Contains(currentInputValue, StringComparer.OrdinalIgnoreCase)) validationErrors.Add(AllowedValueValidationMessage);
+        if (MaxValueLength != null && CurrentInputValue.Length > MaxValueLength) validationErrors.Add(MaxValueLengthValidationMessage);
+        if (MinValueLength != null && CurrentInputValue.Length < MinValueLength) validationErrors.Add(MinValueLengthValidationMessage);
+        if (AllowedValues != null && AllowedValues.Count > 0 && !AllowedValues.Contains(CurrentInputValue, StringComparer.OrdinalIgnoreCase)) validationErrors.Add(AllowedValueValidationMessage);
         if (validationErrors.Count > 0) return;
 
         OnSubmit.InvokeAsync(null);
-        Chips.Add(currentInputValue);
-        currentInputValue = "";
+        Chips.Add(CurrentInputValue);
+        CurrentInputValue = "";
         OnChipsChanged.InvokeAsync(Chips);
     }
 
